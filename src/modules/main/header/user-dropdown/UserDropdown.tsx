@@ -116,7 +116,7 @@ const UserDropdown = () => {
     event.preventDefault();
     setDropdownOpen(false);
     console.log('authentication', authentication);
-    if (authentication.profile.first_name) {
+    if (authentication.user.firstname) {
       await GoogleProvider.signoutPopup();
       dispatch(setAuthentication(undefined));
       navigate('/login');
@@ -142,7 +142,7 @@ const UserDropdown = () => {
     <StyledDropdown isOpen={dropdownOpen} hideArrow>
       <StyledSmallUserImage
         slot="button"
-        src={authentication.profile.picture}
+        src={""}
         fallbackSrc="/img/default-profile.png"
         alt="User"
         width={25}
@@ -152,7 +152,7 @@ const UserDropdown = () => {
       <div slot="menu">
         <UserHeader className=" bg-primary">
           <StyledBigUserImage
-            src={authentication.profile.picture}
+            src={""}
             fallbackSrc="/img/default-profile.png"
             alt="User"
             width={90}
@@ -160,7 +160,7 @@ const UserDropdown = () => {
             rounded
           />
           <p>
-            {authentication.profile.email}
+            {authentication?.user?.email}
             <small>
               <span>Member since </span>
               <span>

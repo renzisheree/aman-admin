@@ -1,5 +1,8 @@
 import { UserManager, UserManagerSettings } from 'oidc-client-ts';
 import { sleep } from './helpers';
+import axios from 'axios';
+import { jwtDecode } from "jwt-decode";
+import Cookies from 'js-cookie'
 
 declare const FB: any;
 
@@ -61,17 +64,24 @@ export const getFacebookLoginStatus = () => {
   });
 };
 
-export const authLogin = (email: string, password: string) => {
+export const authLogin = async (email: string, password: string) => {
   return new Promise(async (res, rej) => {
-    await sleep(500);
-    if (email === 'admin@example.com' && password === 'admin') {
-      localStorage.setItem(
-        'authentication',
-        JSON.stringify({ profile: { email: 'admin@example.com' } })
-      );
-      return res({ profile: { email: 'admin@example.com' } });
+    const response = await axios.post('http://localhost:3000/auth/login', {email,password});
+    if (response.data) {
+       const {access_token, refresh_token} = response.data;
+      const decoded = jwtDecode(access_token);
+      const role = decoded?.user?.role;
+      if(role == 'Admin') {
+         const save = Cookies.set('a_t', access_token, {expires: 1})
+         localStorage.setItem(
+            'authentication',
+            JSON.stringify({user: decoded?.user})
+          );
+      return res({ profile: { email: decoded?.user?.email } });
+      } else {
+         return rej({ message: 'Credentials are wrong!' });
+      } 
     }
-    return rej({ message: 'Credentials are wrong!' });
   });
 };
 

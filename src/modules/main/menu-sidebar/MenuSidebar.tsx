@@ -21,9 +21,9 @@ export const MENU: IMenuItem[] = [
     path: '/'
   },
   {
-    name: i18n.t('menusidebar.label.blank'),
+    name: i18n.t('menusidebar.label.rooms'),
     icon: 'fas fa-wrench nav-icon',
-    path: '/blank'
+    path: '/rooms'
   },
   {
     name: i18n.t('menusidebar.label.mainMenu'),
@@ -79,7 +79,7 @@ const MenuSidebar = () => {
         <div className="user-panel mt-3 pb-3 mb-3 d-flex">
           <div className="image">
             <StyledUserImage
-              src={authentication.profile.picture}
+              src={""}
               fallbackSrc="/img/default-profile.png"
               alt="User"
               width={34}
@@ -89,7 +89,7 @@ const MenuSidebar = () => {
           </div>
           <div className="info">
             <Link to="/profile" className="d-block">
-              {authentication.profile.email}
+              {authentication.user.email}
             </Link>
           </div>
         </div>
