@@ -24,6 +24,9 @@ import {
   getAuthStatus,
   getFacebookLoginStatus,
 } from './utils/oidc-providers';
+import  RoomType  from '@pages/RoomType';
+import  Amenity  from '@pages/Amenity';
+import  User  from '@pages/User';
 
 declare const FB: any;
 
@@ -87,6 +90,9 @@ const App = () => {
             <Route path="/sub-menu-2" element={<Rooms />} />
             <Route path="/sub-menu-1" element={<SubMenu />} />
             <Route path="/rooms" element={<Rooms />} />
+            <Route path="/roomType" element={<RoomType />} />
+            <Route path="/amenity" element={<Amenity />} />
+            <Route path="/users" element={<User />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/" element={<Dashboard />} />
           </Route>

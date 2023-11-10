@@ -79,7 +79,10 @@
       "profile": "Profile",
       "rooms": "Rooms",
       "mainMenu": "Main Menu",
-      "subMenu": "Sub Menu"
+      "subMenu": "Sub Menu",
+      "roomType": "Room Type",
+      "amenity": "Amenity",
+      "user": "Users"
     }
   },
   "footer": {

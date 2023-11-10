@@ -22,25 +22,19 @@ export const MENU: IMenuItem[] = [
   },
   {
     name: i18n.t('menusidebar.label.rooms'),
-    icon: 'fas fa-wrench nav-icon',
     path: '/rooms'
   },
   {
-    name: i18n.t('menusidebar.label.mainMenu'),
-    icon: 'far fa-caret-square-down nav-icon',
-    children: [
-      {
-        name: i18n.t('menusidebar.label.subMenu'),
-        icon: 'fas fa-hammer nav-icon',
-        path: '/sub-menu-1'
-      },
-
-      {
-        name: i18n.t('menusidebar.label.blank'),
-        icon: 'fas fa-cogs nav-icon',
-        path: '/sub-menu-2'
-      }
-    ]
+   name: i18n.t('menusidebar.label.roomType'),
+   path: '/roomType'
+  },
+  {
+   name: i18n.t('menusidebar.label.amenity'),
+   path: '/amenity'
+  },
+  {
+   name: i18n.t('menusidebar.label.user'),
+   path: '/users'
   }
 ];
 
@@ -73,7 +67,7 @@ const MenuSidebar = () => {
           height={33}
           rounded
         />
-        <span className="brand-text font-weight-light">AdminLTE 3</span>
+        <span className="brand-text font-weight-light">Aman Resort</span>
       </Link>
       <div className="sidebar">
         <div className="user-panel mt-3 pb-3 mb-3 d-flex">
