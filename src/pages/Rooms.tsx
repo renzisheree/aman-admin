@@ -1,159 +1,340 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from 'react';
-import {ContentHeader} from '@components';
-import DataTable from 'react-data-table-component';
 import axios from 'axios'
-import {Button, Modal, Form, Input, InputNumber, Upload} from 'antd'
-import type { RcFile, UploadProps } from 'antd/es/upload';
-import type { UploadFile } from 'antd/es/upload/interface';
-import { PlusOutlined } from '@ant-design/icons';
+import { Button, Form, Input, InputNumber, Modal, Select, Space, Table, Tag, Upload } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import TextArea from 'antd/es/input/TextArea';
+import { ConsoleSqlOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import Search from 'antd/es/input/Search';
+import {toast} from 'react-toastify';
+import Cookies from 'js-cookie'
 
+interface DataType {
+   _id: string;
+   key: string; 
+   name: string;
+   descriptions: string;
+   price: number;
+   size: number;
+   max_adults: number;
+   max_children: number;
+}
 
-const truncateDescription = (description: string, maxLength: number) => {
-   if (description.length <= maxLength) {
-     return description;
-   }
  
-   return `${description.substring(0, maxLength)}...`;
- };
  
-const columns = [
-   {
-       name: 'ID',
-       selector: row => row?._id,
-   },
-   {
-       name: 'Name',
-       selector: row => row?.name,
-   },
-   {
-      name: 'Description',
-      selector: row => truncateDescription(row?.description, 100),
-   }
-];
-
-const getBase64 = (file: RcFile): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-
   const Rooms = () => {
      const [data, setData] = useState([]);
      const [open, setOpen] = useState(false);
-     const [previewOpen, setPreviewOpen] = useState(false);
-     const [previewImage, setPreviewImage] = useState('');
-     const [previewTitle, setPreviewTitle] = useState('');
-     const [fileList, setFileList] = useState<UploadFile[]>([]);
-     const handleCanceled = () => setPreviewOpen(false);
+     const [confirmLoading, setConfirmLoading] = useState(false);
+     const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+     const [recordToDelete, setRecordToDelete] = useState(null);
+     const access_token = Cookies.get('a_t');
 
-     const handlePreview = async (file: UploadFile) => {
-       if (!file.url && !file.preview) {
-         file.preview = await getBase64(file.originFileObj as RcFile);
-       }
-   
-       setPreviewImage(file.url || (file.preview as string));
-       setPreviewOpen(true);
-       setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1));
-     };
-     const handleChange: UploadProps['onChange'] = ({ fileList: newFileList }) =>
-     setFileList(newFileList);
- 
-   const uploadButton = (
-     <div>
-       <PlusOutlined />
-       <div style={{ marginTop: 8 }}>Upload</div>
-     </div>
-   );
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/rooms');
-      if(!response.data) {
-         return {error: response.status}
-      }
-      setData(response.data?.items);
-    } catch (error) {
-      console.log(error);
+
+    const handleDeleteRoom = (id: string) => {
+
     }
-  }
+    const [roomTypes, setRoomTypes] = useState([]);
+    const [amenities, setAmenities] = useState([]);
+    const [searchText, setSearchText] = useState('');
+      //handle search bar
+    const onSearch = (value) => {
+      setSearchText(value);
+    }
+   let filteredData = data; 
 
-  fetchData();
-}, []);
+if (searchText) {
+   const searchTextLower = searchText.toLowerCase();
+   filteredData = data.filter(item => {
+     const nameLower = item.name.toLowerCase();
+     return nameLower.includes(searchTextLower);
+   });
+}
+//handle modal open when click button add Room
+     const showModal = () => {
+      setOpen(true);
+    };
+    const fetchRooms = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/rooms');
+        if(!response.data) {
+           return {error: response.status}
+        }
+        setData(response.data?.items);
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
-const showModal = () => {
-  setOpen(true);
-};
-const handleOk = () => {
-  setOpen(false);
-};
+   function base64ToFile(base64, fileName, mimeType) {
+      const byteCharacters = atob(base64);
+      const byteArrays = [];
+    
+      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        const slice = byteCharacters.slice(offset, offset + 512);
+        const byteNumbers = new Array(slice.length);
+    
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+    
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+    
+      const blob = new Blob(byteArrays);
+      return new File([blob], fileName, { type: mimeType });
+}
+     const handleSubmit = async (values) => {
+      console.log(values)
+      const formData = new FormData();
+      const imageCover = values.imageCover?.fileList;
+      const imageThumbnail = values.imageThumbnail?.fileList;
+      for(let i = 0; i < imageCover.length; i ++) {
+         const file = base64ToFile(imageCover[i].thumbUrl.split(",")[1], imageCover[i].name, imageCover[i].type);
+         formData.append(`imageCover`,file);
+      }
+      for(let i = 0; i < imageThumbnail.length; i ++) {
+         const file = base64ToFile(imageThumbnail[i].thumbUrl.split(",")[1], imageThumbnail[i].name, imageThumbnail[i].type);
+         formData.append(`imageThumbnail`,file);
+      }
+      const amenities = values.amenities;
+      for(let i = 0; i < amenities.length; i++) {
+         formData.append(`amenities[${i}]`, amenities[i])
+      }
+      formData.append('description', values?.description);
+      formData.append('name', values?.name);
+      formData.append('price', values?.price);
+      formData.append('max_adults', values?.max_adults);
+      formData.append('max_children', values?.max_children);
+      formData.append('roomType', values?.roomType);
+      formData.append('size', values?.size);
+      console.log([...formData])
+      try {
+         axios({url:"http://localhost:3000/rooms", method: "POST", headers: {"Content-Type": "multipart/form-data" ,Authorization: `Bearer ${access_token}`}, data: formData}).then((res) => {
+            toast.success(res.data.message)
+            setOpen(false);
+         setConfirmLoading(false);
+         fetchRooms()
+         }).catch((e) => {
+            toast.error("Something Wrong");
+         setConfirmLoading(false);
+            console.log(e)
+         })
+         
+         
+      } catch(e) {
+         console.log(e)
+         setConfirmLoading(false);
+      }
+    };
+    const handleCancel = () => {
+      setOpen(false);
+      form.resetFields();
+    };
+    //----------------------------------
+     const columns: ColumnsType<DataType> = [
+      {
+         title: "ID",
+         dataIndex: "_id",
+         key: "id"
+      },
+      {
+         title: "Name",
+         dataIndex: "name",
+         key: 'name'
+      },
+      {
+         title: "Description",
+         dataIndex: "description",
+         key: "description",
+         ellipsis: true
+      },
+      {
+         title: "Price",
+         dataIndex: "price",
+         key: "price",
+         sorter: (a, b) => a.price - b.price,
+      },
+      {
+         title: "Max Adults",
+         dataIndex: "max_adults",
+         key: "max_adults",
+         sorter: (a, b) => a.max_adults - b.max_adults,
+      },
+      {
+         title: "Max Children",
+         dataIndex: "max_children",
+         key: "max_children",
+         sorter: (a, b) => a.max_children - b.max_children,
+      },
+      {
+         title: "Size Room",
+         dataIndex: "size",
+         key: "size",
+         sorter: (a, b) => a.size - b.size,
+      },
+      {
+         title: "Action",
+         render: (text, record) => {
+            return (
+               <div>
+                  <Button danger style={{marginRight: 10}} onClick={() => {
+                     showModalDelete(record._id)
+                  }} >Delete</Button>
+                  <Button danger style={{color: "#c6c61b", borderColor: "#c6c61b"}} onClick={() => {
+                     console.log(record._id)
+                  }}>Edit</Button>
+               </div>
+            )
+         }
+      }
+    ]
+    
+useEffect(() => {
+  
+  fetchRooms();
+}, [data]);
+useEffect(() => {
+   async function fetchData() {
+      try {
+     const response = await axios.get('http://localhost:3000/room-types/all');
+     if(!response.data) {
+      return {error: response.status}
+   }
+   setRoomTypes(response.data?.items);
+ } catch (error) {
+   console.log(error);
+ }
+}
+   fetchData();
+ }, []);
+ useEffect(() => {
+   async function fetchData() {
+      try {
+     const response = await axios.get('http://localhost:3000/amenities');
+     if(!response.data) {
+      return {error: response.status}
+   }
+   setAmenities(response.data?.items);
+ } catch (error) {
+   console.log(error);
+ }
+}
+   fetchData();
+ }, []);
+const [form] = Form.useForm();
+const showModalDelete = (id) => {
+   setRecordToDelete(id);
+   setIsModalDeleteOpen(true);
+ };
 
-const handleCancel = () => {
-  setOpen(false);
-};
+ const handleOkDelete = () => {
+   axios.delete(`http://localhost:3000/rooms/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+      toast.success(res.data.message);
+      fetchRooms();
+   }).catch(e => toast.warn("Something wrong!"))
+   setIsModalDeleteOpen(false);
+ };
+
+ const handleCancelDelete = () => {
+   setIsModalDeleteOpen(false);
+ };
+
   return (
    
     <div>
-      <Button type="primary" onClick={showModal} style={{margin: 10}}>
-          Thêm Phòng
-        </Button>
+      <div>
+      <Modal title="Are you sure want to delete? " open={isModalDeleteOpen} onOk={handleOkDelete} onCancel={handleCancelDelete}></Modal>
+      <Button type='primary' style={{margin: 10}} onClick={showModal}> Add Room</Button>
+      <Search
+      placeholder="input search text"
+      allowClear
+      enterButton="Search"
+      size="large"
+      onSearch={onSearch}
+      style={{ width: 500, display: "block" }} 
+    />
+      </div>
+      <Table columns={columns} dataSource={filteredData} />
       <Modal
+       width="50%" closable={false}
+        title=" Add Room"
         open={open}
-        title="Thêm phòng"
-        onOk={handleOk}
+        onOk={() => {
+         form.submit()
+        }}
+        confirmLoading={confirmLoading}
         onCancel={handleCancel}
-        width={1000}
-        footer={(_, { OkBtn, CancelBtn }) => (
-          <>
-            <CancelBtn />
-            <OkBtn />
-          </>
-        )}
       >
-        <Form className='d-flex'
-        style={{gap: 20}}
-        wrapperCol={{ span: 20 }}
-        layout="horizontal" >
-        <div>
-        <Form.Item label="Tên Phòng">
-         <Input/>
+      <Form form={form} onFinish={handleSubmit}
+      layout='vertical'
+      style={{display: "flex"}}
+      >
+      <div className="left" style={{width: "50%", marginRight: 20}}>
+      <Form.Item label="Room Name" name={"name"} >
+      <Input placeholder='Tên phòng của bạn'/>
+      </Form.Item>
+      <Form.Item label="Description" name={"description"}>
+          <TextArea rows={4} placeholder='Mô tả gì đó về phòng của bạn' />
         </Form.Item>
-        <Form.Item label="Description">
-          <Input.TextArea rows={4} />
+        <div className="block__number" style={{display: "flex", gap:15}}>
+        <Form.Item label="Room size" name={"size"}>
+          <InputNumber min={0} defaultValue={0} />
         </Form.Item>
-        <Form.Item label="Diện tích">
+        <Form.Item label="Price" name={"price"}>
+          <InputNumber min={0} defaultValue={0} />
+        </Form.Item>
+        <Form.Item label="Max Adults" name={"max_adults"}>
+          <InputNumber min={0} defaultValue={0} />
+        </Form.Item>
+        <Form.Item label="Max Children" name={"max_children"}>
           <InputNumber min={0} defaultValue={0} />
         </Form.Item>
         </div>
-        <div style={{marginRight: 20}}>
-        <Form.Item label="Hình ảnh phòng">
-        <Upload
-        action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-        listType="picture-card"
-        fileList={fileList}
-        onPreview={handlePreview}
-        onChange={handleChange}
-      >
-        {fileList.length >= 8 ? null : uploadButton}
-      </Upload>
-      <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCanceled}>
-        <img alt="example" style={{ width: '100%' }} src={previewImage} />
-      </Modal>
+      </div>
+      <div className="right" style={{width: "50%"}}>
+      <Form.Item label="Upload Image Thumbnail" name={"imageThumbnail"}>
+          <Upload
+          beforeUpload={() => false}
+         listType="picture"
+         maxCount={10} >
+          <Button icon={<UploadOutlined />}>Upload (Max: 10)</Button>
+          </Upload>
+      </Form.Item>
+      <Form.Item label="Upload Image Cover" name={"imageCover"}>
+          <Upload
+          beforeUpload={(file, fileList) => {
+            return false
+          }}
+         listType="picture"
+         maxCount={10} >
+          <Button icon={<UploadOutlined />}>Upload (Max: 2)</Button>
+          </Upload>
+      </Form.Item>
+      <Form.Item label="Room Type" name={"roomType"}>
+          <Select>
+          {roomTypes.map(item => (
+    <Select.Option key={item._id} value={item._id}>
+      {item.name}
+    </Select.Option>
+  ))}
+          </Select>
         </Form.Item>
-        </div>
-        </Form>
-        
+        <Form.Item label="Amenities" name={"amenities"}>
+        <Select 
+         mode="multiple"
+         options={amenities.map(item => ({
+         value: item._id,
+         label: item.name
+         }))}
+/>
+        </Form.Item>
+      </div>
+      </Form>
       </Modal>
-         <DataTable
-         columns={columns}
-         data={data}
-         selectableRows
-         pagination
-         />
     </div>
-  );
+      );
 };
 
 export default Rooms;

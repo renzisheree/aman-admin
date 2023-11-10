@@ -67,7 +67,9 @@ export const getFacebookLoginStatus = () => {
 export const authLogin = async (email: string, password: string) => {
   return new Promise(async (res, rej) => {
     const response = await axios.post('http://localhost:3000/auth/login', {email,password});
-    if (response.data) {
+    if(response.data.error) {
+      return rej({ message: response.data.error });
+    }
        const {access_token, refresh_token} = response.data;
       const decoded = jwtDecode(access_token);
       const role = decoded?.user?.role;
@@ -81,7 +83,6 @@ export const authLogin = async (email: string, password: string) => {
       } else {
          return rej({ message: 'Credentials are wrong!' });
       } 
-    }
   });
 };
 

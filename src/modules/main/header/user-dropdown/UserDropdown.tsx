@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { PfDropdown, PfImage } from '@profabric/react-components';
 import { setAuthentication } from '@app/store/reducers/auth';
 import { GoogleProvider } from '@app/utils/oidc-providers';
+import Cookies from 'js-cookie'
 
 const StyledSmallUserImage = styled(PfImage)`
   margin-top: 3px;
@@ -116,20 +117,10 @@ const UserDropdown = () => {
     event.preventDefault();
     setDropdownOpen(false);
     console.log('authentication', authentication);
-    if (authentication.user.firstname) {
-      await GoogleProvider.signoutPopup();
-      dispatch(setAuthentication(undefined));
-      navigate('/login');
-    } else if (authentication.userID) {
-      FB.logout(() => {
-        dispatch(setAuthentication(undefined));
-        navigate('/login');
-      });
-    } else {
-      dispatch(setAuthentication(undefined));
-      navigate('/login');
-    }
+    await dispatch(setAuthentication(undefined))
+    Cookies.remove('a_t');
     localStorage.removeItem('authentication');
+    navigate('/login');
   };
 
   const navigateToProfile = (event: any) => {

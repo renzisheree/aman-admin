@@ -89,7 +89,7 @@ const MenuSidebar = () => {
           </div>
           <div className="info">
             <Link to="/profile" className="d-block">
-              {authentication.user.email}
+              {authentication.user?.email}
             </Link>
           </div>
         </div>
