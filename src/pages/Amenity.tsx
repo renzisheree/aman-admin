@@ -146,7 +146,7 @@ return (
     <Table columns={columns} dataSource={filteredData} />
     <Modal
      width="30%" closable={false}
-      title=" Add Room Type"
+      title=" Add Amenity"
       open={open}
       onOk={() => {
        form.submit()
