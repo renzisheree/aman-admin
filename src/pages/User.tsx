@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios'
-import { Button, Form, Input, Modal, Table } from 'antd';
+import { Button, Form, Input, Modal, Select, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import TextArea from 'antd/es/input/TextArea';
 import {  MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
@@ -13,26 +13,14 @@ import Cookies from 'js-cookie'
    const [confirmLoading, setConfirmLoading] = useState(false);
    const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
    const [recordToDelete, setRecordToDelete] = useState(null);
+   const [recordToEdit, setRecordToEdit] = useState(null);
+   const [isModalEditOpen, setIsModalEditOpen] = useState(false)
+
    const access_token = Cookies.get('a_t');
   const [roomTypes, setRoomTypes] = useState([]);
   const [searchText, setSearchText] = useState('');
 //------------------------------------------------------
-const formItemLayout = {
- labelCol: {
-   xs: { span: 24 },
-   sm: { span: 4 },
- },
- wrapperCol: {
-   xs: { span: 24 },
-   sm: { span: 20 },
- },
-};
-const formItemLayoutWithOutLabel = {
- wrapperCol: {
-   xs: { span: 24, offset: 0 },
-   sm: { span: 20, offset: 4 },
- },
-};
+const [formForEdit] = Form.useForm();
     //handle search bar
   const onSearch = (value) => {
     setSearchText(value);
@@ -42,13 +30,15 @@ const formItemLayoutWithOutLabel = {
 if (searchText) {
  const searchTextLower = searchText.toLowerCase();
  filteredData = data.filter(item => {
-   const lastNameLower = item.lastname.toLowerCase();
-   const phone = item.phone;
-   const email = item.email.toLowerCase();
+   const lastNameLower = item?.lastname.toLowerCase();
+   const phone = item?.phone;
+   const email = item?.email.toLowerCase();
+   const role = item?.role.toLowerCase();
    return (
       lastNameLower.includes(searchTextLower) ||
       phone.includes(searchTextLower) ||
-      email.includes(searchTextLower)
+      email.includes(searchTextLower) ||
+      role.includes(searchTextLower)
     );
  });
 }
@@ -71,8 +61,9 @@ useEffect(() => {
     setOpen(true);
   };
    const handleSubmit = async (values) => {
+      console.log(values)
     try {
-       const response = await axios.post('http://localhost:3000/room/amenities', values, {headers: {Authorization: `Bearer ${access_token}`}});
+       const response = await axios.post('http://localhost:3000/users', values, {headers: {Authorization: `Bearer ${access_token}`}});
           toast.success(response.data.message);
           setOpen(false);
           setConfirmLoading(false);
@@ -89,6 +80,22 @@ useEffect(() => {
     form.resetFields();
   };
   //----------------------------------
+  const showModalEdit = (id) => {
+   setRecordToEdit(id);
+   setIsModalEditOpen(true)
+   axios.get(`http://localhost:3000/user/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      const data = res.data.user;
+      console.log(data)
+      formForEdit.setFieldsValue({
+         firstname: data.firstname,
+         lastname: data.lastname,
+         phone: data.phone,
+         country: data.country,
+         email: data.email,
+         role: data.role,
+      });
+   }).catch(e => console.log(e))
+  }
    const columns: ColumnsType = [
     {
        title: "ID",
@@ -118,6 +125,11 @@ useEffect(() => {
       title: "Country",
       dataIndex: "country",
       key: 'country'
+   },{
+   title: "Role",
+   dataIndex: "role",
+   key:"role",
+   sorter: (a, b) => a.role.localeCompare(b.role),
    },
     {
        title: "Action",
@@ -128,7 +140,7 @@ useEffect(() => {
                    showModalDelete(record._id)
                 }} >Delete</Button>
                 <Button danger style={{color: "#c6c61b", borderColor: "#c6c61b"}} onClick={() => {
-                   console.log(record._id)
+                   showModalEdit(record._id)
                 }}>Edit</Button>
              </div>
           )
@@ -142,7 +154,7 @@ const showModalDelete = (id) => {
 };
 
 const handleOkDelete = () => {
- axios.delete(`http://localhost:3000/amenity/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+ axios.delete(`http://localhost:3000/user/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
     toast.success(res.data.message);
     fetchUser();
  }).catch(e => toast.warn("Something wrong!"))
@@ -153,10 +165,46 @@ const handleCancelDelete = () => {
  setIsModalDeleteOpen(false);
 };
 
+const handleOkEdit = (values) => {
+   axios.patch(`http://localhost:3000/user/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      toast.success(res.data.message);
+      setIsModalEditOpen(false);
+      fetchUser();
+   }).catch(e => toast.error(e))
+
+}
+const handleCancelEdit = () => {
+setIsModalEditOpen(false)
+}
 return (
  
   <div>
     <div>
+      <Modal title="Edit User" open={isModalEditOpen} onOk={() => formForEdit.submit()} onCancel={handleCancelEdit}>
+         <Form form={formForEdit} onFinish={handleOkEdit} layout='vertical'>
+         <Form.Item label="First Name" name={"firstname"} rules={[{ required: true }]}>
+          <Input/>
+       </Form.Item>
+       <Form.Item label="Last Name" name={"lastname"} rules={[{ required: true }]}>
+          <Input/>
+       </Form.Item>
+       <Form.Item label="Phone Number" name={"phone"} rules={[{ required: true }]}>
+          <Input type='number' min={0}/>
+       </Form.Item>
+       <Form.Item label="Country" name={"country"} rules={[{ required: true }]}>
+          <Input/>
+       </Form.Item>
+       <Form.Item label="Email" name={"email"} rules={[{ required: true }]}>
+          <Input/>
+       </Form.Item>
+       <Form.Item label="Role" name={"role"} rules={[{ required: true }]}>
+          <Select>
+            <Select.Option value="Admin">Admin</Select.Option>
+            <Select.Option value="User">User</Select.Option>
+          </Select>
+        </Form.Item>
+         </Form>
+      </Modal>
     <Modal title="Are you sure want to delete? " open={isModalDeleteOpen} onOk={handleOkDelete} onCancel={handleCancelDelete}></Modal>
     <Button type='primary' style={{margin: 10}} onClick={showModal}> Add User</Button>
     <Search
@@ -183,9 +231,30 @@ return (
     layout='vertical'
     style={{ maxWidth: 600 }}
     >
-       <Form.Item label="Name" name={"name"}>
+       <Form.Item label="First Name" name={"firstname"} rules={[{ required: true }]}>
           <Input/>
        </Form.Item>
+       <Form.Item label="Last Name" name={"lastname"} rules={[{ required: true }]}>
+          <Input/>
+       </Form.Item>
+       <Form.Item label="Phone Number" name={"phone"} rules={[{ required: true }]}>
+          <Input type='number' min={0}/>
+       </Form.Item>
+       <Form.Item label="Country" name={"country"} rules={[{ required: true }]}>
+          <Input/>
+       </Form.Item>
+       <Form.Item label="Email" name={"email"} rules={[{ required: true }]}>
+          <Input/>
+       </Form.Item>
+       <Form.Item label="Password" name={"password"}rules={[{ required: true }]}>
+          <Input type='password'/>
+       </Form.Item>
+       <Form.Item label="Role" name={"role"} rules={[{ required: true }]}>
+          <Select>
+            <Select.Option value="Admin">Admin</Select.Option>
+            <Select.Option value="User">User</Select.Option>
+          </Select>
+        </Form.Item>
     </Form>
     </Modal>
   </div>

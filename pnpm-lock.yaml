@@ -71,6 +71,9 @@ dependencies:
   luxon:
     specifier: 3.3.0
     version: 3.3.0
+  moment:
+    specifier: ^2.29.4
+    version: 2.29.4
   oidc-client-ts:
     specifier: 2.2.2
     version: 2.2.2

@@ -82,7 +82,10 @@
       "subMenu": "Sub Menu",
       "roomType": "Room Type",
       "amenity": "Amenity",
-      "user": "Users"
+      "user": "Users",
+      "booking": "Booking",
+      "allBooking": "All Booking",
+      "confirmBooking": "Confirm Booking"
     }
   },
   "footer": {

@@ -26,8 +26,10 @@ interface DataType {
      const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
      const [recordToDelete, setRecordToDelete] = useState(null);
      const access_token = Cookies.get('a_t');
-    const [roomTypes, setRoomTypes] = useState([]);
     const [searchText, setSearchText] = useState('');
+    const [isModalEditOpen, setIsModalEditOpen] = useState(false)
+    const [recordToEdit, setRecordToEdit] = useState('');
+
 //------------------------------------------------------
 const formItemLayout = {
    labelCol: {
@@ -126,7 +128,7 @@ const fetchRoomType = async () => {
                      showModalDelete(record._id)
                   }} >Delete</Button>
                   <Button danger style={{color: "#c6c61b", borderColor: "#c6c61b"}} onClick={() => {
-                     console.log(record._id)
+                     showModalEdit(record._id)
                   }}>Edit</Button>
                </div>
             )
@@ -151,10 +153,112 @@ const showModalDelete = (id) => {
    setIsModalDeleteOpen(false);
  };
 
+ const handleOkEdit = (values) =>{
+   axios.patch(`http://localhost:3000/roomType/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      toast.success(res.data.message);
+      setIsModalEditOpen(false);
+      fetchRoomType();
+   }).catch(e => toast.error(e))
+}
+const handleCancelEdit = () => {
+   setIsModalEditOpen(false);
+}
+const [formForEdit] = Form.useForm();
+const showModalEdit = (id) => {
+   setRecordToEdit(id);
+ setIsModalEditOpen(true);
+ axios.get(`http://localhost:3000/roomType/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      const data = res.data.roomType;
+      console.log(data)
+      formForEdit.setFieldsValue({
+         title: data.title,
+         name: data.name,
+         description: data.description,
+         path: data.path,
+         inclusion: data.inclusion
+      });
+   }).catch(e => console.log(e))
+}
+
+
   return (
    
     <div>
       <div>
+      <Modal title="Edit Room Type " open={isModalEditOpen} onOk={() => {
+         formForEdit.submit();
+      }} onCancel={handleCancelEdit}>
+         <Form form={formForEdit} onFinish={handleOkEdit} layout='vertical'>
+            <Form.Item label="Title" name={"title"}>
+               <Input/>
+            </Form.Item>
+            <Form.Item label="Name" name={"name"}>
+               <Input/>
+            </Form.Item>
+            <Form.Item label="Description" name={"description"}>
+            <TextArea rows={4} />
+            </Form.Item>
+            <Form.Item label="Path" name={"path"}>
+            <Input/>
+            </Form.Item>
+            <Form.List
+        name= {"inclusion"}
+        rules={[
+          {
+            validator: async (_, names) => {
+              if (!names || names.length < 2) {
+                return Promise.reject(new Error('At least 2 inclusion'));
+              }
+            },
+          },
+        ]}
+      >
+        {(fields, { add, remove }, { errors }) => (
+          <>
+            {fields.map((field, index) => (
+              <Form.Item
+                {...formItemLayout}
+                label={index === 0 ? 'Inclusion' : ''}
+                required={false}
+                key={field.key}
+              >
+                <Form.Item
+                  {...field}
+                  validateTrigger={['onChange', 'onBlur']}
+                  rules={[
+                    {
+                      required: true,
+                      whitespace: true,
+                      message: "Please input inclusion or delete this field.",
+                    },
+                  ]}
+                  noStyle
+                >
+                  <Input placeholder="inclusion" style={{ width: '60%' }} />
+                </Form.Item>
+                {fields.length > 1 ? (
+                  <MinusCircleOutlined
+                    className="dynamic-delete-button"
+                    onClick={() => remove(field.name)}
+                  />
+                ) : null}
+              </Form.Item>
+            ))}
+            <Form.Item>
+              <Button
+                type="dashed"
+                onClick={() => add()}
+                icon={<PlusOutlined />}
+              >
+                Add field
+              </Button>
+              <Form.ErrorList errors={errors} />
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
+         </Form>
+      </Modal> 
       <Modal title="Are you sure want to delete? " open={isModalDeleteOpen} onOk={handleOkDelete} onCancel={handleCancelDelete}></Modal>
       <Button type='primary' style={{margin: 10}} onClick={showModal}> Add Room Type</Button>
       <Search

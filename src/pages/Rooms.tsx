@@ -28,6 +28,9 @@ interface DataType {
      const [confirmLoading, setConfirmLoading] = useState(false);
      const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
      const [recordToDelete, setRecordToDelete] = useState(null);
+     const [recordToEdit, setRecordToEdit] = useState(null);
+     const [isModalEditOpen, setIsModalEditOpen] = useState(false)
+
      const access_token = Cookies.get('a_t');
 
 
@@ -133,6 +136,24 @@ if (searchText) {
       form.resetFields();
     };
     //----------------------------------
+    const [formForEdit] = Form.useForm();
+    const handleSubmitEdit = (id) => {
+      setRecordToEdit(id);
+      setIsModalEditOpen(true);
+      axios.get(`http://localhost:3000/room/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      const data = res.data.room;
+      formForEdit.setFieldsValue({
+         name: data.name,
+         description: data.description,
+         size: data.size,
+         price: data.price,
+         max_adults: data.max_adults,
+         max_children: data.max_children,
+         roomType: data.roomType,
+         amenities: data.amenities
+      });
+   }).catch(e => console.log(e))
+    }
      const columns: ColumnsType<DataType> = [
       {
          title: "ID",
@@ -183,7 +204,7 @@ if (searchText) {
                      showModalDelete(record._id)
                   }} >Delete</Button>
                   <Button danger style={{color: "#c6c61b", borderColor: "#c6c61b"}} onClick={() => {
-                     console.log(record._id)
+                     handleSubmitEdit(record._id)
                   }}>Edit</Button>
                </div>
             )
@@ -240,11 +261,66 @@ const showModalDelete = (id) => {
  const handleCancelDelete = () => {
    setIsModalDeleteOpen(false);
  };
+ 
+const handleOkEdit = (values) =>{
+   console.log(values);
+   axios.patch(`http://localhost:3000/room/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      toast.success(res.data.message);
+      setIsModalEditOpen(false);
+      fetchRooms();
+   }).catch(e => console.log(e))
 
+}
+const handleCancelEdit = () => {
+setIsModalEditOpen(false);
+}
   return (
    
     <div>
       <div>
+         <Modal title="Edit Room" open={isModalEditOpen} onOk={() => formForEdit.submit()} onCancel={handleCancelEdit}>
+         <Form onFinish={handleOkEdit} form={formForEdit} layout='vertical'>
+
+      <Form.Item label="Room Name" name={"name"} >
+      <Input placeholder='Tên phòng của bạn'/>
+      </Form.Item>
+      <Form.Item label="Description" name={"description"}>
+          <TextArea rows={4} placeholder='Mô tả gì đó về phòng của bạn' />
+        </Form.Item>
+        <div className="block__number" style={{display: "flex", gap:15}}>
+        <Form.Item label="Room size" name={"size"}>
+          <InputNumber min={0} defaultValue={0} />
+        </Form.Item>
+        <Form.Item label="Price" name={"price"}>
+          <InputNumber min={0} defaultValue={0} />
+        </Form.Item>
+        <Form.Item label="Max Adults" name={"max_adults"}>
+          <InputNumber min={0} defaultValue={0} />
+        </Form.Item>
+        <Form.Item label="Max Children" name={"max_children"}>
+          <InputNumber min={0} defaultValue={0} />
+        </Form.Item>
+        </div>
+        <Form.Item label="Room Type" name={"roomType"}>
+          <Select>
+          {roomTypes.map(item => (
+    <Select.Option key={item._id} value={item._id}>
+      {item.name}
+    </Select.Option>
+  ))}
+          </Select>
+        </Form.Item>
+        <Form.Item label="Amenities" name={"amenities"}>
+        <Select 
+         mode="multiple"
+         options={amenities.map(item => ({
+         value: item._id,
+         label: item.name
+         }))}
+/>
+        </Form.Item>
+         </Form>
+         </Modal>
       <Modal title="Are you sure want to delete? " open={isModalDeleteOpen} onOk={handleOkDelete} onCancel={handleCancelDelete}></Modal>
       <Button type='primary' style={{margin: 10}} onClick={showModal}> Add Room</Button>
       <Search

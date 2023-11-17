@@ -27,6 +27,8 @@ import {
 import  RoomType  from '@pages/RoomType';
 import  Amenity  from '@pages/Amenity';
 import  User  from '@pages/User';
+import Booking from '@pages/Booking'
+import ConfirmBooking from '@pages/ConfirmBooking';
 
 declare const FB: any;
 
@@ -87,12 +89,12 @@ const App = () => {
         </Route>
         <Route path="/" element={<PrivateRoute />}>
           <Route path="/" element={<Main />}>
-            <Route path="/sub-menu-2" element={<Rooms />} />
-            <Route path="/sub-menu-1" element={<SubMenu />} />
             <Route path="/rooms" element={<Rooms />} />
             <Route path="/roomType" element={<RoomType />} />
             <Route path="/amenity" element={<Amenity />} />
             <Route path="/users" element={<User />} />
+            <Route path="/booking" element={<Booking />} />
+            <Route path="/booking/confirm" element={<ConfirmBooking />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/" element={<Dashboard />} />
           </Route>

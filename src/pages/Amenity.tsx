@@ -12,10 +12,13 @@ import Cookies from 'js-cookie'
    const [open, setOpen] = useState(false);
    const [confirmLoading, setConfirmLoading] = useState(false);
    const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+   const [isModalEditOpen, setIsModalEditOpen] = useState(false)
    const [recordToDelete, setRecordToDelete] = useState(null);
+   const [recordToEdit, setRecordToEdit] = useState(null);
    const access_token = Cookies.get('a_t');
-  const [roomTypes, setRoomTypes] = useState([]);
+  
   const [searchText, setSearchText] = useState('');
+  const [textAmenity, setTextAmenity] = useState('');
 //------------------------------------------------------
 const formItemLayout = {
  labelCol: {
@@ -52,6 +55,7 @@ const fetchAmenities = async () => {
     if(!response.data) {
        return {error: response.status}
     }
+    console.log(response.data.items);
     setData(response.data?.items);
  } catch (error) {
     console.log(error);
@@ -103,7 +107,7 @@ useEffect(() => {
                    showModalDelete(record._id)
                 }} >Delete</Button>
                 <Button danger style={{color: "#c6c61b", borderColor: "#c6c61b"}} onClick={() => {
-                   console.log(record._id)
+                  showModalEdit(record._id)
                 }}>Edit</Button>
              </div>
           )
@@ -127,11 +131,33 @@ const handleOkDelete = () => {
 const handleCancelDelete = () => {
  setIsModalDeleteOpen(false);
 };
+const handleOkEdit = () =>{
+   const inputValue = textAmenity;
+   axios.patch(`http://localhost:3000/amenity/${recordToEdit}`, {name: inputValue}, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+      setIsModalEditOpen(false);
+      toast.success(res.data.message)
+      fetchAmenities()
+   }).catch(e => toast.error(e))
+
+}
+const handleCancelEdit = () => {
+   setIsModalEditOpen(false);
+}
+const showModalEdit = (id) => {
+   setRecordToEdit(id);
+ setIsModalEditOpen(true);
+ axios.get(`http://localhost:3000/amenity/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res => {
+   setTextAmenity(res.data.amenity.name)
+ })).catch(e  => console.log(e))
+}
 
 return (
  
   <div>
     <div>
+    <Modal title="Edit Amenity " open={isModalEditOpen} onOk={handleOkEdit} onCancel={handleCancelEdit}>
+          <Input value={textAmenity} onChange={(e) => setTextAmenity(e.target.value)}/>
+      </Modal>  
     <Modal title="Are you sure want to delete? " open={isModalDeleteOpen} onOk={handleOkDelete} onCancel={handleCancelDelete}></Modal>
     <Button type='primary' style={{margin: 10}} onClick={showModal}> Add Amenity</Button>
     <Search

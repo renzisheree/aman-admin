@@ -35,7 +35,20 @@ export const MENU: IMenuItem[] = [
   {
    name: i18n.t('menusidebar.label.user'),
    path: '/users'
-  }
+  },
+  {
+   name: i18n.t('menusidebar.label.booking'),
+   children: [
+      {
+      name: i18n.t('menusidebar.label.allBooking'),
+      path: '/booking'
+      },
+      {
+      name: i18n.t('menusidebar.label.confirmBooking'),
+      path: '/booking/confirm'
+      }
+   ]
+  },
 ];
 
 const StyledBrandImage = styled(PfImage)`
