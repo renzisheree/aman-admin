@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
-import { Button, Modal, Table } from 'antd'
+import { Button, Modal, Table, Form, Input, Select } from 'antd'
 import moment from 'moment'
 import Search from 'antd/es/input/Search'
 import { toast } from 'react-toastify'
@@ -11,8 +11,10 @@ const Booking = () => {
    const access_token = Cookies.get('a_t')
    const [searchText, setSearchText] = useState('');
    const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
    const [recordToDelete,setRecordToDelete] = useState('')
-
+   const [recordToEdit,setRecordToEdit] = useState('')
+const [formForEdit] = Form.useForm()
    const onSearch = (value) => {
       setSearchText(value);
     }
@@ -50,8 +52,8 @@ const Booking = () => {
       "Chưa xác nhận": 'orange',
     };
     const statusPaymentColors = {
-      "Đã Thanh toán": 'green',
-      "Chưa Thanh toán": 'orange',
+      "Đã thanh toán": 'green',
+      "Chưa thanh toán": 'orange',
     };
 
     const showModalDelete = (id) => {
@@ -68,6 +70,30 @@ const Booking = () => {
      };
      const handleCancelDelete = () => {
       setIsModalDeleteOpen(false);
+     };
+     const showModalEdit = (id) => {
+      setRecordToEdit(id);
+      setIsModalEditOpen(true)
+      axios.get(`http://localhost:3000/bookings/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+         const data = res.data.booking;
+         formForEdit.setFieldsValue({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            phone: data.phone,
+            status: data.status,
+            payment_status: data.payment_status
+         });
+      }).catch(e => console.log(e))
+     }
+     const handleOkEdit = (values) => {
+      axios.patch(`http://localhost:3000/bookings/edit/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      toast.success(res.data.message);
+      setIsModalEditOpen(false);
+      fetchDataTable();
+   }).catch(e => toast.error(e))
+     };
+     const handleCancelEdit = () => {
+      setIsModalEditOpen(false);
      };
    const columns = [
       {
@@ -172,7 +198,7 @@ const Booking = () => {
                      showModalDelete(record._id)
                   }} >Delete</Button>
                   <Button danger style={{color: "#c6c61b", borderColor: "#c6c61b"}} onClick={() => {
-                     console.log(record._id);
+                     showModalEdit(record._id)
                   }}>Edit</Button>
                </div>
             )
@@ -181,6 +207,32 @@ const Booking = () => {
    ]
   return (
    <div>
+      <Modal title="Edit Booking" open={isModalEditOpen} onOk={() => formForEdit.submit()} onCancel={handleCancelEdit}>
+      <Form form={formForEdit} onFinish={handleOkEdit} layout='vertical'>
+      <Form.Item label="First Name" name={"firstName"} rules={[{ required: true }]}>
+          <Input/>
+       </Form.Item>
+       <Form.Item label="Last Name" name={"lastName"} rules={[{ required: true }]}>
+          <Input/>
+       </Form.Item>
+       <Form.Item label="Phone Number" name={"phone"} rules={[{ required: true }]}>
+          <Input type='number' min={0}/>
+       </Form.Item>
+       <Form.Item label="Status" name={"status"} rules={[{ required: true }]}>
+          <Select>
+            <Select.Option value="Đã xác nhận">Đã xác nhận</Select.Option>
+            <Select.Option value="Chưa xác nhận">Chưa xác nhận</Select.Option>
+            <Select.Option value="Hủy">Hủy</Select.Option>
+          </Select>
+        </Form.Item>
+        <Form.Item label="Status Payment" name={"payment_status"} rules={[{ required: true }]}>
+          <Select>
+            <Select.Option value="Chưa thanh toán">Chưa thanh toán</Select.Option>
+            <Select.Option value="Đã thanh toán">Đã thanh toán</Select.Option>
+          </Select>
+        </Form.Item>
+      </Form>
+      </Modal>
       <Modal title="Are you sure want to delete? " open={isModalDeleteOpen} onOk={handleOkDelete} onCancel={handleCancelDelete}></Modal>
       <Search
     placeholder="input search text"

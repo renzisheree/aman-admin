@@ -49,8 +49,8 @@ const ConfirmBooking = () => {
       "Chưa xác nhận": 'orange',
     };
     const statusPaymentColors = {
-      "Đã Thanh toán": 'green',
-      "Chưa Thanh toán": 'orange',
+      "Đã thanh toán": 'green',
+      "Chưa thanh toán": 'orange',
     };
 
     const showModalCancel = (id) => {
