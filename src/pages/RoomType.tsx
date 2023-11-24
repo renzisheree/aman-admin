@@ -62,7 +62,7 @@ if (searchText) {
 }
 const fetchRoomType = async () => {
    try {
-      const response = await axios.get('http://localhost:3000/room-types/all')
+      const response = await axios.get('http://20.2.232.155:3000/room-types/all')
       if(!response.data) {
          return {error: response.status}
       }
@@ -80,7 +80,7 @@ const fetchRoomType = async () => {
     };
      const handleSubmit = async (values) => {
       try {
-         const response = await axios.post('http://localhost:3000/room/room-types', values, {headers: {Authorization: `Bearer ${access_token}`}});
+         const response = await axios.post('http://20.2.232.155:3000/room/room-types', values, {headers: {Authorization: `Bearer ${access_token}`}});
             toast.success(response.data.message);
             setOpen(false);
             setConfirmLoading(false);
@@ -142,7 +142,7 @@ const showModalDelete = (id) => {
  };
 
  const handleOkDelete = () => {
-   axios.delete(`http://localhost:3000/roomType/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+   axios.delete(`http://20.2.232.155:3000/roomType/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
       toast.success(res.data.message);
       fetchRoomType();
    }).catch(e => toast.warn("Something wrong!"))
@@ -154,7 +154,7 @@ const showModalDelete = (id) => {
  };
 
  const handleOkEdit = (values) =>{
-   axios.patch(`http://localhost:3000/roomType/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+   axios.patch(`http://20.2.232.155:3000/roomType/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
       toast.success(res.data.message);
       setIsModalEditOpen(false);
       fetchRoomType();
@@ -167,7 +167,7 @@ const [formForEdit] = Form.useForm();
 const showModalEdit = (id) => {
    setRecordToEdit(id);
  setIsModalEditOpen(true);
- axios.get(`http://localhost:3000/roomType/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+ axios.get(`http://20.2.232.155:3000/roomType/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
       const data = res.data.roomType;
       console.log(data)
       formForEdit.setFieldsValue({

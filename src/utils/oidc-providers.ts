@@ -66,7 +66,7 @@ export const getFacebookLoginStatus = () => {
 
 export const authLogin = async (email: string, password: string) => {
   return new Promise(async (res, rej) => {
-    const response = await axios.post('http://localhost:3000/auth/login', {email,password});
+    const response = await axios.post('http://20.2.232.155:3000/auth/login', {email,password});
     if(response.data.error) {
       return rej({ message: response.data.error });
     }

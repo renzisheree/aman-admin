@@ -51,7 +51,7 @@ if (searchText) {
 }
 const fetchAmenities = async () => {
  try {
-    const response = await axios.get('http://localhost:3000/amenities')
+    const response = await axios.get('http://20.2.232.155:3000/amenities')
     if(!response.data) {
        return {error: response.status}
     }
@@ -70,7 +70,7 @@ useEffect(() => {
   };
    const handleSubmit = async (values) => {
     try {
-       const response = await axios.post('http://localhost:3000/room/amenities', values, {headers: {Authorization: `Bearer ${access_token}`}});
+       const response = await axios.post('http://20.2.232.155:3000/room/amenities', values, {headers: {Authorization: `Bearer ${access_token}`}});
           toast.success(response.data.message);
           setOpen(false);
           setConfirmLoading(false);
@@ -121,7 +121,7 @@ const showModalDelete = (id) => {
 };
 
 const handleOkDelete = () => {
- axios.delete(`http://localhost:3000/amenity/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+ axios.delete(`http://20.2.232.155:3000/amenity/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
     toast.success(res.data.message);
     fetchAmenities();
  }).catch(e => toast.warn("Something wrong!"))
@@ -133,7 +133,7 @@ const handleCancelDelete = () => {
 };
 const handleOkEdit = () =>{
    const inputValue = textAmenity;
-   axios.patch(`http://localhost:3000/amenity/${recordToEdit}`, {name: inputValue}, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+   axios.patch(`http://20.2.232.155:3000/amenity/${recordToEdit}`, {name: inputValue}, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
       setIsModalEditOpen(false);
       toast.success(res.data.message)
       fetchAmenities()
@@ -146,7 +146,7 @@ const handleCancelEdit = () => {
 const showModalEdit = (id) => {
    setRecordToEdit(id);
  setIsModalEditOpen(true);
- axios.get(`http://localhost:3000/amenity/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res => {
+ axios.get(`http://20.2.232.155:3000/amenity/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res => {
    setTextAmenity(res.data.amenity.name)
  })).catch(e  => console.log(e))
 }

@@ -59,7 +59,7 @@ if (searchText) {
     };
     const fetchRooms = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/rooms');
+        const response = await axios.get('http://20.2.232.155:3000/rooms');
         if(!response.data) {
            return {error: response.status}
         }
@@ -114,7 +114,7 @@ if (searchText) {
       formData.append('size', values?.size);
       console.log([...formData])
       try {
-         axios({url:"http://localhost:3000/rooms", method: "POST", headers: {"Content-Type": "multipart/form-data" ,Authorization: `Bearer ${access_token}`}, data: formData}).then((res) => {
+         axios({url:"http://20.2.232.155:3000/rooms", method: "POST", headers: {"Content-Type": "multipart/form-data" ,Authorization: `Bearer ${access_token}`}, data: formData}).then((res) => {
             toast.success(res.data.message)
             setOpen(false);
          setConfirmLoading(false);
@@ -140,7 +140,7 @@ if (searchText) {
     const handleSubmitEdit = (id) => {
       setRecordToEdit(id);
       setIsModalEditOpen(true);
-      axios.get(`http://localhost:3000/room/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      axios.get(`http://20.2.232.155:3000/room/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
       const data = res.data.room;
       formForEdit.setFieldsValue({
          name: data.name,
@@ -219,7 +219,7 @@ useEffect(() => {
 useEffect(() => {
    async function fetchData() {
       try {
-     const response = await axios.get('http://localhost:3000/room-types/all');
+     const response = await axios.get('http://20.2.232.155:3000/room-types/all');
      if(!response.data) {
       return {error: response.status}
    }
@@ -233,7 +233,7 @@ useEffect(() => {
  useEffect(() => {
    async function fetchData() {
       try {
-     const response = await axios.get('http://localhost:3000/amenities');
+     const response = await axios.get('http://20.2.232.155:3000/amenities');
      if(!response.data) {
       return {error: response.status}
    }
@@ -251,7 +251,7 @@ const showModalDelete = (id) => {
  };
 
  const handleOkDelete = () => {
-   axios.delete(`http://localhost:3000/rooms/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+   axios.delete(`http://20.2.232.155:3000/rooms/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
       toast.success(res.data.message);
       fetchRooms();
    }).catch(e => toast.warn("Something wrong!"))
@@ -264,7 +264,7 @@ const showModalDelete = (id) => {
  
 const handleOkEdit = (values) =>{
    console.log(values);
-   axios.patch(`http://localhost:3000/room/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+   axios.patch(`http://20.2.232.155:3000/room/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
       toast.success(res.data.message);
       setIsModalEditOpen(false);
       fetchRooms();

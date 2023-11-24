@@ -38,7 +38,7 @@ const [formForEdit] = Form.useForm()
    });
   }
    const fetchDataTable = () => {
-      axios.get('http://localhost:3000/bookings', {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      axios.get('http://20.2.232.155:3000/bookings', {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
          console.log(res.data.items);
          setData(res.data.items)
       }).catch(error => console.log(error))
@@ -62,7 +62,7 @@ const [formForEdit] = Form.useForm()
      };
     
     const handleOkDelete = () => {
-      axios.delete(`http://localhost:3000/bookings/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+      axios.delete(`http://20.2.232.155:3000/bookings/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
          toast.success(res.data.message);
          fetchDataTable();
       }).catch(e => toast.warn("Something wrong!"))
@@ -74,7 +74,7 @@ const [formForEdit] = Form.useForm()
      const showModalEdit = (id) => {
       setRecordToEdit(id);
       setIsModalEditOpen(true)
-      axios.get(`http://localhost:3000/bookings/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      axios.get(`http://20.2.232.155:3000/bookings/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
          const data = res.data.booking;
          formForEdit.setFieldsValue({
             firstName: data.firstName,
@@ -86,7 +86,7 @@ const [formForEdit] = Form.useForm()
       }).catch(e => console.log(e))
      }
      const handleOkEdit = (values) => {
-      axios.patch(`http://localhost:3000/bookings/edit/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      axios.patch(`http://20.2.232.155:3000/bookings/edit/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
       toast.success(res.data.message);
       setIsModalEditOpen(false);
       fetchDataTable();

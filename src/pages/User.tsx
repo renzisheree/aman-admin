@@ -44,7 +44,7 @@ if (searchText) {
 }
 const fetchUser = async () => {
  try {
-    const response = await axios.get('http://localhost:3000/auth/users', {headers: {Authorization: `Bearer ${access_token}`}})
+    const response = await axios.get('http://20.2.232.155:3000/auth/users', {headers: {Authorization: `Bearer ${access_token}`}})
     if(!response.data) {
        return {error: response.status}
     }
@@ -63,7 +63,7 @@ useEffect(() => {
    const handleSubmit = async (values) => {
       console.log(values)
     try {
-       const response = await axios.post('http://localhost:3000/users', values, {headers: {Authorization: `Bearer ${access_token}`}});
+       const response = await axios.post('http://20.2.232.155:3000/users', values, {headers: {Authorization: `Bearer ${access_token}`}});
           toast.success(response.data.message);
           setOpen(false);
           setConfirmLoading(false);
@@ -83,7 +83,7 @@ useEffect(() => {
   const showModalEdit = (id) => {
    setRecordToEdit(id);
    setIsModalEditOpen(true)
-   axios.get(`http://localhost:3000/user/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+   axios.get(`http://20.2.232.155:3000/user/${id}`, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
       const data = res.data.user;
       console.log(data)
       formForEdit.setFieldsValue({
@@ -154,7 +154,7 @@ const showModalDelete = (id) => {
 };
 
 const handleOkDelete = () => {
- axios.delete(`http://localhost:3000/user/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+ axios.delete(`http://20.2.232.155:3000/user/${recordToDelete}`, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
     toast.success(res.data.message);
     fetchUser();
  }).catch(e => toast.warn("Something wrong!"))
@@ -166,7 +166,7 @@ const handleCancelDelete = () => {
 };
 
 const handleOkEdit = (values) => {
-   axios.patch(`http://localhost:3000/user/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+   axios.patch(`http://20.2.232.155:3000/user/${recordToEdit}`, values, {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
       toast.success(res.data.message);
       setIsModalEditOpen(false);
       fetchUser();

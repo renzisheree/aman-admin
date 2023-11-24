@@ -35,7 +35,7 @@ const ConfirmBooking = () => {
    });
   }
    const fetchDataTable = () => {
-      axios.get('http://localhost:3000/bookings/unconfirm', {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
+      axios.get('http://20.2.232.155:3000/bookings/unconfirm', {headers: {Authorization: `Bearer ${access_token}`}}).then(res => {
          console.log(res.data.items);
          setData(res.data.items)
       }).catch(error => console.log(error))
@@ -64,7 +64,7 @@ const ConfirmBooking = () => {
      }
     
     const handleOkCancel = () => {
-      axios.put(`http://localhost:3000/bookings/${recordToCancel}`,null, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+      axios.put(`http://20.2.232.155:3000/bookings/${recordToCancel}`,null, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
          toast.success(res.data.message);
          fetchDataTable();
       }).catch(e => console.log(e));
@@ -74,7 +74,7 @@ const ConfirmBooking = () => {
       setIsModalCancelOpen(false);
      };
      const handleOkConfirm = () => {
-      axios.patch(`http://localhost:3000/bookings/${recordToConfirm}`,null, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
+      axios.patch(`http://20.2.232.155:3000/bookings/${recordToConfirm}`,null, {headers: {Authorization: `Bearer ${access_token}`}}).then((res) => {
          toast.success(res.data.message);
          fetchDataTable();
       }).catch(e => console.log(e));
